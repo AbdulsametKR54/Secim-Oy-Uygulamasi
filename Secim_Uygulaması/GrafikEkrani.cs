@@ -24,32 +24,46 @@ namespace Secim_Uygulaması
         {
             cmbIlce.Size = new Size(240, 28);
 
-            //Grafik
-            baglanti.Open();
-            SqlCommand komut = new SqlCommand("SELECT SUM(APartisi), SUM(BPartisi), SUM(CPartisi), SUM(DPartisi), SUM(EPartisi) FROM Tbl_ILCE", baglanti);
-            SqlDataReader dr=komut.ExecuteReader();
-            while (dr.Read())
-            {
-                chart1.Series["Partiler"].Points.AddXY("A Partisi", dr[0]);
-                chart1.Series["Partiler"].Points.AddXY("B Partisi", dr[1]);
-                chart1.Series["Partiler"].Points.AddXY("C Partisi", dr[2]);
-                chart1.Series["Partiler"].Points.AddXY("D Partisi", dr[3]);
-                chart1.Series["Partiler"].Points.AddXY("E Partisi", dr[4]);
-            }
-            dr.Close();
-            baglanti.Close();
-
+            cmbIlce.Text = "GENEL";
+            UpdateStartChart();
+            UpdateStartProgressBar();
+            UpdateCombaBox();
+        }
+        void UpdateCombaBox()
+        {
             //Combabox veri çekme
             baglanti.Open();
+            cmbIlce.Items.Add("GENEL");
             SqlCommand komut2 = new SqlCommand("Select ILCE From Tbl_ILCE", baglanti);
-            SqlDataReader dr2= komut2.ExecuteReader();
+            SqlDataReader dr2 = komut2.ExecuteReader();
             while (dr2.Read())
             {
                 cmbIlce.Items.Add(dr2[0]);
             }
             dr2.Close();
             baglanti.Close();
-
+        }
+        void UpdateStartChart()
+        {
+            //Grafik
+            chart1.Series.Clear();
+            chart1.Series.Add("Partiler");
+            baglanti.Open();
+            SqlCommand komut = new SqlCommand("SELECT SUM(APartisi), SUM(BPartisi), SUM(CPartisi), SUM(DPartisi), SUM(EPartisi) FROM Tbl_ILCE", baglanti);
+            SqlDataReader dr = komut.ExecuteReader();
+            while (dr.Read())
+            {
+                if (cmbIlce.Text == "GENEL")
+                {
+                    chart1.Series["Partiler"].Points.AddXY("A Partisi", dr[0]);
+                    chart1.Series["Partiler"].Points.AddXY("B Partisi", dr[1]);
+                    chart1.Series["Partiler"].Points.AddXY("C Partisi", dr[2]);
+                    chart1.Series["Partiler"].Points.AddXY("D Partisi", dr[3]);
+                    chart1.Series["Partiler"].Points.AddXY("E Partisi", dr[4]);
+                }
+            }
+            dr.Close();
+            baglanti.Close();
         }
         void UpdateChart()
         {
@@ -68,6 +82,27 @@ namespace Secim_Uygulaması
                 chart1.Series["Partiler"].Points.AddXY("E Partisi", dr[4]);
             }
             dr.Close();
+            baglanti.Close();
+        }
+        void UpdateStartProgressBar()
+        {
+            baglanti.Open();
+            SqlCommand komut = new SqlCommand("SELECT SUM(APartisi), SUM(BPartisi), SUM(CPartisi), SUM(DPartisi), SUM(EPartisi) FROM Tbl_ILCE", baglanti);
+            SqlDataReader dr3 = komut.ExecuteReader();
+            while (dr3.Read())
+            {
+                progressBar1.Value = int.Parse(dr3[0].ToString());
+                progressBar2.Value = int.Parse(dr3[1].ToString());
+                progressBar4.Value = int.Parse(dr3[2].ToString());
+                progressBar3.Value = int.Parse(dr3[3].ToString());
+                progressBar5.Value = int.Parse(dr3[4].ToString());
+                label2.Text = dr3[0].ToString();
+                label3.Text = dr3[1].ToString();
+                label5.Text = dr3[2].ToString();
+                label7.Text = dr3[3].ToString();
+                label9.Text = dr3[4].ToString();
+            }
+            dr3.Close();
             baglanti.Close();
         }
         void UpdateProgressBar()
@@ -96,8 +131,16 @@ namespace Secim_Uygulaması
         }
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            UpdateChart();
-            UpdateProgressBar();
+            if(cmbIlce.Text!="GENEL")
+            {
+                UpdateChart();
+                UpdateProgressBar();
+            }
+            else
+            {
+                UpdateStartChart();
+                UpdateStartProgressBar();
+            }
         }
     }
 }
